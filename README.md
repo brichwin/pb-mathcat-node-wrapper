@@ -65,7 +65,11 @@ Tests include:
 
 ### `initMathcat(rulesPath?: string): string`
 
-Initializes the MathCAT library with speech generation rules.
+Initializes the MathCAT library with the following defaults:
+
+- SpeechStyle: 'ClearSpeak'
+- Verbosity: 'Verbose'
+- Language: 'en'
 
 ```javascript
 const { initMathcat } = require('pb-mathcat-node-wrapper');
