@@ -1,6 +1,6 @@
 # pb-mathcat-node-wrapper
 
-A Node.js wrapper for the [MathCAT](https://github.com/NSoiffer/MathCAT) library, designed for converting MathML to peech text. Built specifically for Pressbooks math microservices.
+A Node.js wrapper for the [MathCAT](https://github.com/NSoiffer/MathCAT) library, designed for converting MathML to speech text. Built specifically for Pressbooks math microservices.
 
 ## Overview
 
@@ -31,39 +31,35 @@ cd pb-mathcat-node-wrapper
 
 # Install dependencies
 npm install
-
-# Build the native addon
-npm run build
 ```
 
 ## Building
 
 ```bash
-# Development build
 npm run build
-
-# The build process will:
-# 1. Compile Rust code using Cargo
-# 2. Generate platform-specific .node binary
-# 3. Create TypeScript definitions
 ```
 
-**Output**: `pb-mathcat-node-wrapper.{platform}-{arch}.node`
+The build process will:
+1. Compile Rust code using Cargo
+2. Generate platform-specific .node binary
+3. Create TypeScript definitions
 
 ## Testing
 
-```bash
-# Run all tests
-npm test
+Run all tests:
 
-# Tests include:
-# - Simple math expressions (x)
-# - Equations (x = 5)  
-# - Complex expressions (square roots, etc.)
-# - Error handling for invalid input
-# - Language preference changes
-# - Getting the MathCAT Version 
+```bash
+npm test
 ```
+
+Tests include:
+
+- Simple math expressions (x)
+- Equations (x = 5)  
+- Complex expressions (square roots, etc.)
+- Error handling for invalid input
+- Language preference changes
+- Getting the MathCAT Version
 
 ## API Reference
 
@@ -119,7 +115,7 @@ setMathcatPreference('Language', 'de');
 setMathcatPreference('SpeechStyle', 'SimpleSpeak');
 
 // Useful preferences include:
-// - Language: 'en', 'de', 'es', 'fi', 'sv', etc.
+// - Language: 'de', 'en', 'es', 'fi', 'id', 'nb', 'sv', 'vi', 'zh', 'zz' etc.
 // - SpeechStyle: 'ClearSpeak', 'SimpleSpeak'
 // - Verbosity: 'Terse', 'Medium', 'Verbose'
 ```
@@ -194,6 +190,70 @@ if (result.startsWith('-!ERROR!-')) {
 }
 ```
 
+## Using in Another Node.js Project
+
+This package is not published on npm, it is easiest to copy the required files into your node app:
+
+After building the wrapper, copy these essential files to your target project:
+
+### Required Files
+
+```bash
+index.js                                    # JavaScript bindings (~1.4KB)
+index.d.ts                                  # TypeScript definitions (~450B)
+pb-mathcat-node-wrapper.darwin-arm64.node   # Compiled binary (~3.1MB)
+Rules/                                      # MathCAT rules directory (~6.4MB)
+```
+
+Pick the platform-specific binary:
+
+```bash
+pb-mathcat-node-wrapper.linux-x64-gnu.node
+pb-mathcat-node-wrapper.win32-x64-msvc.node
+```
+
+#### Integration Steps
+
+1. **Create a subdirectory** in your project:
+
+   ```bash
+   mkdir -p your-project/lib/mathcat
+   ```
+
+2. **Copy the built files**:
+
+   ```bash
+   # From pb-mathcat-node-wrapper directory
+   cp index.js your-project/lib/mathcat/
+   cp index.d.ts your-project/lib/mathcat/
+   cp pb-mathcat-node-wrapper.*.node your-project/lib/mathcat/
+   cp -r Rules/ your-project/lib/mathcat/Rules/
+   ```
+
+3. **Use in your project**:
+
+   ```javascript
+   // your-project/src/math-service.js
+   const {
+     initMathcat,
+     getSpeechTextFromMathcat,
+     setMathcatPreference,
+     getMathcatVersion
+   } = require('../lib/mathcat');
+
+   // Initialize with relative path to Rules
+   initMathcat('./lib/mathcat/Rules');
+
+   // Use normally
+   const speech = getSpeechTextFromMathcat('<math><mi>x</mi></math>');
+   ```
+
+#### Size Considerations
+
+- **Total size**: ~9.5MB (binary 3.1MB + rules 6.4MB)
+- **Platform-specific**: Only include `.node` files for your target platforms
+- **Rules directory**: Required by MathCAT
+
 ## Rules Directory
 
 The `Rules/` directory contains MathCAT's speech generation rules and must be present for the library to function. It includes:
@@ -227,7 +287,7 @@ npm test           # Run test suite
 
 ## License
 
-MIT
+GNU General Public License v3.0
 
 ## Links
 
